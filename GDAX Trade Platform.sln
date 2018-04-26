@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDAX Trade Platform", "GDAX Trade Platform\GDAX Trade Platform.csproj", "{552A4757-17D2-4AB1-B37A-9D37B5D51FFF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{552A4757-17D2-4AB1-B37A-9D37B5D51FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{552A4757-17D2-4AB1-B37A-9D37B5D51FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{552A4757-17D2-4AB1-B37A-9D37B5D51FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{552A4757-17D2-4AB1-B37A-9D37B5D51FFF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {29BEAB4E-C690-49AE-976B-00308848FC99}
+	EndGlobalSection
+EndGlobal

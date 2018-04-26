@@ -1,0 +1,28 @@
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\GDAX Trade Platform.exe.config
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\GDAX Trade Platform.exe
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\GDAX Trade Platform.pdb
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Castle.Core.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\GDAXSharp.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\SuperSocket.ClientEngine.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Collections.Specialized.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Net.NameResolution.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Net.Security.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Net.Sockets.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Security.Cryptography.Algorithms.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Security.Cryptography.Encoding.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Security.Cryptography.Primitives.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\System.Security.Cryptography.X509Certificates.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\WebSocket4Net.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Castle.Core.xml
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csprojResolveAssemblyReference.cache
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.MainForm.resources
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.OrderBook.resources
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Properties.Resources.resources
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csproj.GenerateResource.Cache
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csproj.CoreCompileInputs.cache
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.exe
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.pdb
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Order.resources
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Authentication.resources
