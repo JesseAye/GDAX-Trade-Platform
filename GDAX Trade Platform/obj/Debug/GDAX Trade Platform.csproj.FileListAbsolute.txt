@@ -26,3 +26,5 @@ C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GD
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.pdb
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Order.resources
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Authentication.resources
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csproj.CopyComplete
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.ExtendedDataGridView.resources

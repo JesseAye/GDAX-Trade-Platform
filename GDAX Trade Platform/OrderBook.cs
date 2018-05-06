@@ -1,61 +1,43 @@
-﻿using GDAXSharp;
-using GDAXSharp.WebSocket.Models.Response;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
 
 namespace GDAX_Trade_Platform
 {
 	public partial class OrderBook : Form
 	{
-		GDAXClient gdaxClient;
-		public bool ReadyForL2Updates = false;
+		Data ClientData;
 
-		public OrderBook(GDAXClient _gdaxClient)
+		public OrderBook(ref Data ClientDataRef)
 		{
 			InitializeComponent();
-			gdaxClient = _gdaxClient;
+			ClientData = ClientDataRef;
 
-			Thread t = new Thread(MainLoopAsync);
-			t.Start();
+			BidBuyTable.DataSource = ClientData.CurrentBids;
+
+			BidBuyTable.Columns[0].Width = 86;
+			BidBuyTable.Columns[1].Width = 86;
+			BidBuyTable.Columns[2].Width = 67;
+
+			AskSellTable.DataSource = ClientData.CurrentAsks;
+
+			AskSellTable.Columns[0].Width = 86;
+			AskSellTable.Columns[1].Width = 86;
+			AskSellTable.Columns[2].Width = 67;
+
+			ClientData.OrderBookReceived += OnOrderBookReceived;
 		}
 
-		private async void MainLoopAsync()
+		private void OnOrderBookReceived(object sender, EventArgs e)
 		{
-			var initialOrderBook = await gdaxClient.ProductsService.GetProductOrderBookAsync(GDAXSharp.Shared.Types.ProductType.LtcUsd, GDAXSharp.Services.Products.Types.ProductLevel.Two);
-			
-			for(int i = 0; i != 15; i++)
+			Invoke(new Action(delegate ()
 			{
-				//Grab a clone of the column layout from their respective table
-				DataGridViewRow bidRow  = (DataGridViewRow)BidBuyTable.Rows[0].Clone();
-				DataGridViewRow askRow = (DataGridViewRow)AskSellTable.Rows[0].Clone();
-
-				//Use our incoming data from initialOrderBook at index x, and load them into our row variables
-				bidRow.SetValues(initialOrderBook.Bids.ElementAt(i).Size, initialOrderBook.Bids.ElementAt(i).Price, 0);
-				askRow.SetValues(initialOrderBook.Asks.ElementAt(i).Size, initialOrderBook.Asks.ElementAt(i).Price, 0);
-
-				//Invoke the form (beacuse this is a different thread) so we can add the rows to their tables
-				this.Invoke(new Action(delegate ()
-				{
-					BidBuyTable.Rows.Add(bidRow);
-					AskSellTable.Rows.Add(askRow);
-				}));
-			}
-
-			ReadyForL2Updates = true;
-
-			while(!Disposing)
-			{
-			}
+				BidBuyTable.Refresh();
+				AskSellTable.Refresh();
+			}));
 		}
+		//TODO: Figure out how to refresh individual cells upon Level 2 updates
 
+		/*
 		public bool ReceiveL2Update(Level2 data)
 		{
 			//For each change in the Level 2 data
@@ -102,7 +84,6 @@ namespace GDAX_Trade_Platform
 						break;
 				}
 			}
-			//*/
 			
 
 			if(ReadyForL2Updates)
@@ -111,5 +92,6 @@ namespace GDAX_Trade_Platform
 			}
 			return true;
 		}
+		*/
 	}
 }

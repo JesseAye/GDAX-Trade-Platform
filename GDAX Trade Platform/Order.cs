@@ -1,28 +1,22 @@
 ﻿using GDAXSharp;
-using GDAXSharp.Services.Accounts.Models;
+using GDAXSharp.Services.Orders.Types;
+using GDAXSharp.Shared.Types;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GDAXSharp.Services.Orders.Types;
-using GDAXSharp.Shared.Types;
 
 namespace GDAX_Trade_Platform
 {
 	public partial class Order : Form
 	{
-		GDAXClient gdaxClient;
+		Data ClientData;
 
-		public Order(GDAXClient _gdaxClient)
+		public Order(ref Data ClientDataRef)
 		{
 			InitializeComponent();
-			gdaxClient = _gdaxClient;
+			ClientData = ClientDataRef;
 
 			Thread t = new Thread(MainLoopAsync);
 			t.Start();
@@ -32,7 +26,7 @@ namespace GDAX_Trade_Platform
 		{
 			while (!Disposing)
 			{
-				var Balances = await gdaxClient.AccountsService.GetAllAccountsAsync();
+				var Balances = await ClientData.Client.AccountsService.GetAllAccountsAsync();
 
 				MethodInvoker methodInvoker = delegate
 				{
@@ -118,7 +112,7 @@ namespace GDAX_Trade_Platform
 		/// <returns></returns>
 		private async Task ExecuteMarketOrderAsync(OrderSide orderSide, ProductType productType, Decimal Amount)
 		{
-			var sendorder = await gdaxClient.OrdersService.PlaceMarketOrderAsync(orderSide, productType, Amount);
+			var sendorder = await ClientData.Client.OrdersService.PlaceMarketOrderAsync(orderSide, productType, Amount);
 		}
 
 		/// <summary>
@@ -134,7 +128,7 @@ namespace GDAX_Trade_Platform
 		private async Task ExecuteLimitOrderAsync(OrderSide orderSide, ProductType productType, Decimal Amount,
 			Decimal Price, TimeInForce timeInForce = TimeInForce.Gtc, bool postOnly = true)
 		{
-			var sendorder = await gdaxClient.OrdersService.PlaceLimitOrderAsync(orderSide, productType, Amount, Price, timeInForce, postOnly);
+			var sendorder = await ClientData.Client.OrdersService.PlaceLimitOrderAsync(orderSide, productType, Amount, Price, timeInForce, postOnly);
 		}
 
 		/// <summary>
@@ -152,25 +146,25 @@ namespace GDAX_Trade_Platform
 			{
 				if (StopBuyLimitCheckBox.Checked == true)
 				{
-					var sendorder = await gdaxClient.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
+					var sendorder = await ClientData.Client.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
 				}
 
 				else
 				{
-					var sendorder = await gdaxClient.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
+					var sendorder = await ClientData.Client.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
 				}
 			}
 
 			else if (orderSide == OrderSide.Sell)
 			{
-				if (StopSellLimitCheckBox.Checked = true)
+				if (StopSellLimitCheckBox.Checked == true)
 				{
-					var sendorder = await gdaxClient.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
+					var sendorder = await ClientData.Client.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
 				}
 
 				else
 				{
-					var sendorder = await gdaxClient.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
+					var sendorder = await ClientData.Client.OrdersService.PlaceStopOrderAsync(orderSide, productType, Amount, stopPrice);
 				}
 			}
 
