@@ -1,10 +1,5 @@
-﻿using GDAXSharp;
-using GDAXSharp.Network.Authentication;
-using GDAXSharp.Shared.Types;
-using GDAXSharp.WebSocket.Models.Response;
-using GDAXSharp.WebSocket.Types;
+﻿using GDAXSharp.Shared.Types;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 

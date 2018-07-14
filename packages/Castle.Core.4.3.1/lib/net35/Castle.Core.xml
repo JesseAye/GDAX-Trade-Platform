@@ -416,12 +416,6 @@
         <member name="M:Castle.Components.DictionaryAdapter.DictionaryAdapterFactory.GetAdapterMeta(System.Type,Castle.Components.DictionaryAdapter.DictionaryAdapterMeta)">
             <inheritdoc />
         </member>
-        <member name="T:Castle.Components.DictionaryAdapter.DynamicDictionary">
-            <summary>
-            Wraps a <see cref="T:System.Collections.IDictionary"/> with a dynamic object to expose a bit better looking API.
-            The implementation is trivial and assumes keys are <see cref="T:System.String"/>s.
-            </summary>
-        </member>
         <member name="T:Castle.Components.DictionaryAdapter.IDictionaryAdapter">
             <summary>
             Contract for manipulating the Dictionary adapter.

@@ -16,7 +16,6 @@ C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Sy
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\WebSocket4Net.dll
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Castle.Core.xml
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csprojResolveAssemblyReference.cache
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.MainForm.resources
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.OrderBook.resources
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Properties.Resources.resources
@@ -27,4 +26,7 @@ C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GD
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Order.resources
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Authentication.resources
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csproj.CopyComplete
-C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.ExtendedDataGridView.resources
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX Trade Platform.csprojAssemblyReference.cache
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Serilog.dll
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Serilog.pdb
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Serilog.xml
