@@ -10,6 +10,7 @@ namespace GDAX_Trade_Platform
 		Data ClientData;
 		OrderBook orderBook;
 		Order order;
+		Trade_History trades;
 
 		public MainForm()
 		{
@@ -28,6 +29,9 @@ namespace GDAX_Trade_Platform
 
 			order = new Order(ref ClientData);
 			order.Show();
+
+			trades = new Trade_History(ref ClientData);
+			trades.Show();
 		}
 
 		async Task<Decimal> MidMarketPrice()

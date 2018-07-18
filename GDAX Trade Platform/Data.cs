@@ -15,30 +15,72 @@ namespace GDAX_Trade_Platform
 {
 	public class Data
 	{
-		//Private variables
+		#region Variables
+		// Private variables
 		private GDAXClient gdaxClient;
 		private ProductType productType;
 		private DataTable BidsDataTable;
 		private DataTable AsksDataTable;
 		private DataTable FullBidsTable;
 		private DataTable FullAsksTable;
+		public List<Changes> PendChanges;
 
-		//Public properties for our private variables
+		// Public properties for our private variables
 		/// <summary>
 		/// Returns the instance of GDAXClient
 		/// </summary>
 		public GDAXClient Client { get { return gdaxClient; } }
 		public DataTable CurrentBids { get { return BidsDataTable; } }
 		public DataTable CurrentAsks { get { return AsksDataTable; } }
+		public int PendChangesCount { get { return PendChanges.Count; } }
+		#endregion
 
+		#region Events
 		/// <summary>
 		/// Occurs once GetOrderBook() has completed
 		/// </summary>
 		public event EventHandler<EventArgs> OrderBookReceived;
 		/// <summary>
+		/// Event method for when the Order Book has been received and entered into the DataTables
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected virtual void OnOrderBookReceived(object sender, EventArgs e)
+		{
+			var handler = OrderBookReceived; // We do not want racing conditions!
+			handler?.Invoke(sender, e);
+		}
+
+		/// <summary>
 		/// Occurs once WebSocket_OnLevel2UpdateReceived() has completed
 		/// </summary>
-		public event EventHandler<Coords> Level2Received;
+		public event EventHandler<EventArgs> Level2Received;
+		/// <summary>
+		/// Event method for when the Level 2 updates have been received and entered into the DataTables
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected virtual void OnLevel2Received(object sender, EventArgs e)
+		{
+			var handler = Level2Received; // We do not want racing conditions!
+			handler?.Invoke(sender, e);
+		}
+
+		/// <summary>
+		/// Occurs once WebSocket_OnTickerReceived() has completed
+		/// </summary>
+		public event EventHandler<WebfeedEventArgs<Ticker>> TickerReceived;
+		/// <summary>
+		/// Event method for when the Ticker has been received
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected virtual void OnTickerReceived(object sender, WebfeedEventArgs<Ticker> e)
+		{
+			var handler = TickerReceived;
+			handler?.Invoke(sender, e);
+		}
+		#endregion
 
 		public Data()
 		{
@@ -73,7 +115,6 @@ namespace GDAX_Trade_Platform
 
 			//Start up a new thread that gets the current order book
 			Thread _OrderBookT = new Thread(ResetOrderBook);
-			Console.WriteLine("Authenticate called ResetOrderBook");
 			_OrderBookT.Start();
 
 			var Channels = new List<ChannelType>() { ChannelType.Heartbeat, ChannelType.Level2, ChannelType.Ticker };
@@ -85,6 +126,220 @@ namespace GDAX_Trade_Platform
 			webSocket.OnHeartbeatReceived += WebSocket_OnHeartbeatReceived;
 			webSocket.OnLevel2UpdateReceived += WebSocket_OnLevel2UpdateReceived;
 			webSocket.OnTickerReceived += WebSocket_OnTickerReceived;
+
+			PendChanges = new List<Changes>();
+			Thread _PendingChangesT = new Thread(PendingChangesT);
+			_PendingChangesT.Start();
+		}
+
+		/// <summary>
+		/// Constantly loops and checks to see if there are changes to be made per the PendChanges var
+		/// </summary>
+		private async void PendingChangesT()
+		{
+			while(true)
+			{
+				// Check to see if we have any pending changes
+				if(PendChanges.Count > 0)
+				{
+					// Make sure we start working on the correct data
+					switch (PendChanges[0].orderType)
+					{
+						case "sell":
+						{
+							// Let's make sure that we'll be iterating for a row that SHOULD be on the table
+							if (PendChanges[0].Price <= Convert.ToDecimal(FullAsksTable.Rows[FullAsksTable.Rows.Count - 1][1]))
+							{
+								// If we either need to update a row or add a row
+								if (PendChanges[0].MarketSize > 0)
+								{
+									// If the price of the pending change is lower than the lowest existing in the full table
+									if (PendChanges[0].Price < Convert.ToDecimal(FullAsksTable.Rows[0][1]))
+									{
+										DataRow row = FullAsksTable.NewRow();
+										row[0] = PendChanges[0].MarketSize;
+										row[1] = PendChanges[0].Price;
+										row[2] = 0;
+										//Insert the pending change at the top of the table
+										FullAsksTable.Rows.InsertAt(row, 0);
+										row = null;
+
+										row = AsksDataTable.NewRow();
+										row[0] = PendChanges[0].MarketSize;
+										row[1] = PendChanges[0].Price;
+										row[2] = 0;
+										//Insert the pending change at the top of the table
+										AsksDataTable.Rows.InsertAt(row, 0);
+
+										//Remove the last row
+										AsksDataTable.Rows.RemoveAt(AsksDataTable.Rows.Count - 1);
+									}
+
+									// If the price of the pending change is NOT lower than the lowest existing in the full table
+									else
+									{
+										// Loop through each row in the full table and update the info as needed
+										for (int i = 0; i <= FullAsksTable.Rows.Count - 1; i++)
+										{
+											if (Convert.ToDecimal(FullAsksTable.Rows[i][1]) == PendChanges[0].Price)
+											{
+												FullAsksTable.Rows[i][0] = PendChanges[0].MarketSize;
+
+												if (i <= AsksDataTable.Rows.Count - 1)
+												{
+													AsksDataTable.AcceptChanges();
+													AsksDataTable.Rows[i][0] = PendChanges[0].MarketSize;
+												}
+											}
+										}
+									}
+								}
+
+								// Else, the market size is 0, we need to remove a row
+								else
+								{
+									// If our table is running low on rows, just go ahead and redownload the whole orderbook
+									if (FullAsksTable.Rows.Count < 20)
+									{
+										RefreshOrderBook();
+									}
+
+									else
+									{
+										for (int i = 0; i <= FullAsksTable.Rows.Count - 1; i++)
+										{
+											if (Convert.ToDecimal(FullAsksTable.Rows[i][1]) == PendChanges[0].Price)
+											{
+												FullAsksTable.Rows.RemoveAt(i);
+
+												if (i <= AsksDataTable.Rows.Count - 1)
+												{
+													AsksDataTable.Rows.RemoveAt(i);
+
+													DataRow row = AsksDataTable.NewRow();
+
+													row[0] = FullAsksTable.Rows[14][0];
+													row[1] = FullAsksTable.Rows[14][1];
+													row[2] = 0;
+
+													AsksDataTable.Rows.Add(row);
+
+												}
+											}
+										}
+									}
+								}
+
+								FullAsksTable.AcceptChanges();
+								AsksDataTable.AcceptChanges();
+
+								//PendChanges.RemoveAt(0);
+							}
+							break;
+						}
+
+						case "buy":
+						{
+							// Let's make sure that we'll be iterating for a row that SHOULD be on the table
+							if (PendChanges[0].Price >= Convert.ToDecimal(FullBidsTable.Rows[FullBidsTable.Rows.Count - 1][1]))
+							{
+								// If we either need to update a row or add a row
+								if (PendChanges[0].MarketSize > 0)
+								{
+									// If the price of the pending change is higher than the highest existing in the full table
+									if (PendChanges[0].Price > Convert.ToDecimal(FullBidsTable.Rows[0][1]))
+									{
+										DataRow row = FullBidsTable.NewRow();
+										row[0] = PendChanges[0].MarketSize;
+										row[1] = PendChanges[0].Price;
+										row[2] = 0;
+										//Insert the pending change at the top of the table
+										FullBidsTable.Rows.InsertAt(row, 0);
+										row = null;
+
+										row = BidsDataTable.NewRow();
+										row[0] = PendChanges[0].MarketSize;
+										row[1] = PendChanges[0].Price;
+										row[2] = 0;
+										//Insert the pending change at the top of the table
+										BidsDataTable.Rows.InsertAt(row, 0);
+
+										//Remove the last row
+										BidsDataTable.Rows.RemoveAt(BidsDataTable.Rows.Count - 1);
+									}
+
+									// If the price of the pending change is NOT higher than the highest existing in the full table
+									else
+									{
+										// Loop through each row in the full table and update the info as needed
+										for (int i = 0; i <= FullBidsTable.Rows.Count - 1; i++)
+										{
+											if (Convert.ToDecimal(FullBidsTable.Rows[i][1]) == PendChanges[0].Price)
+											{
+												FullBidsTable.Rows[i][0] = PendChanges[0].MarketSize;
+
+												if (i <= BidsDataTable.Rows.Count - 1)
+												{
+													BidsDataTable.AcceptChanges();
+													BidsDataTable.Rows[i][0] = PendChanges[0].MarketSize;
+												}
+											}
+										}
+									}
+								}
+
+								// Else, the market size is 0, we need to remove a row
+								else
+								{
+									// If our table is running low on rows, just go ahead and redownload the whole orderbook
+									if (FullBidsTable.Rows.Count < 20)
+									{
+										RefreshOrderBook();
+									}
+
+									else
+									{
+										for (int i = 0; i <= FullBidsTable.Rows.Count - 1; i++)
+										{
+											if (Convert.ToDecimal(FullBidsTable.Rows[i][1]) == PendChanges[0].Price)
+											{
+												FullBidsTable.Rows.RemoveAt(i);
+
+												if (i <= BidsDataTable.Rows.Count - 1)
+												{
+													BidsDataTable.Rows.RemoveAt(i);
+
+													DataRow row = BidsDataTable.NewRow();
+
+													row[0] = FullBidsTable.Rows[14][0];
+													row[1] = FullBidsTable.Rows[14][1];
+													row[2] = 0;
+
+													BidsDataTable.Rows.Add(row);
+
+												}
+											}
+										}
+									}
+								}
+
+								FullBidsTable.AcceptChanges();
+								BidsDataTable.AcceptChanges();
+
+								//PendChanges.RemoveAt(0);
+							}
+							break;
+						}
+
+						default:
+						{
+							break;
+						}
+					}
+					
+					PendChanges.RemoveAt(0);
+				}
+			}
 		}
 
 		/// <summary>
@@ -100,9 +355,10 @@ namespace GDAX_Trade_Platform
 		/// </summary>
 		private void WebSocket_OnLevel2UpdateReceived(object sender, WebfeedEventArgs<Level2> e)
 		{
-			//Begin looping through each change received in the Level 2 update
+			// Begin looping through each change received in the Level 2 update
 			for (int i = 0; i < e.LastOrder.Changes.Count; i++)
 			{
+				// Doing this just makes it easier to use
 				Changes change = new Changes()
 				{
 					MarketSize = Convert.ToDecimal(e.LastOrder.Changes.ElementAt(i).ElementAt(2)),
@@ -110,143 +366,9 @@ namespace GDAX_Trade_Platform
 					orderType = e.LastOrder.Changes.ElementAt(i).ElementAt(0)
 				};
 
-				//If the change at this price has no more market size
-				if (change.MarketSize == new decimal(0))
-				{
-					if (change.orderType == "buy")
-					{
-						//Search through each row for a matching price
-						for (int j = 0; j <= BidsDataTable.Rows.Count - 1; j++)
-						{
-							if (Convert.ToDecimal(BidsDataTable.Rows[j][1]) == change.Price)
-							{
-								BidsDataTable.Rows[j].Delete();
-								BidsDataTable.AcceptChanges();
 
-								DataRow row = BidsDataTable.NewRow();
-								row[0] = FullBidsTable.Rows[14][0];
-								row[1] = FullBidsTable.Rows[14][1];
-								row[2] = FullBidsTable.Rows[14][2];
-								BidsDataTable.Rows.Add(row); // Get the 15th row from full Bids
-							}
-						}
-					}
-
-					else if (change.orderType == "sell")
-					{
-						//Search through each row for a matching price
-						for (int j = 0; j <= AsksDataTable.Rows.Count - 1; j++)
-						{
-							if (Convert.ToDecimal(AsksDataTable.Rows[j][1]) == change.Price)
-							{
-								AsksDataTable.Rows[j].Delete();
-								AsksDataTable.AcceptChanges();
-
-								DataRow row = AsksDataTable.NewRow();
-								row[0] = FullAsksTable.Rows[14][0];
-								row[1] = FullAsksTable.Rows[14][1];
-								row[2] = FullAsksTable.Rows[14][2];
-								AsksDataTable.Rows.Add(row); // Get the 15th row from full Asks
-							}
-						}
-					}
-				}
-
-				else
-				{
-					DataRow row;
-					
-					switch (change.orderType)
-					{
-						case "sell":
-						{
-							//Check if we have a new ask at mid market price, or in other words, moving the mid market price
-							if (change.Price < Convert.ToDecimal(AsksDataTable.Rows[0][1]))
-							{
-								AsksDataTable.Rows[14].Delete();
-
-								row = FullAsksTable.NewRow();
-								row[0] = change.MarketSize;
-								row[1] = change.Price;
-								row[2] = 0;
-
-								FullAsksTable.Rows.InsertAt(row, 0);
-
-								row = AsksDataTable.NewRow();
-								row[0] = change.MarketSize;
-								row[1] = change.Price;
-								row[2] = 0;
-								
-								AsksDataTable.Rows.InsertAt(row, 0);
-							}
-
-							else
-							{
-								for (int j = 0; j < 49; j++)
-								{
-									if (Convert.ToDecimal(FullAsksTable.Rows[j][1]) == change.Price)
-									{
-										FullAsksTable.Rows[j][0] = change.MarketSize;
-
-										if (j <= 14)
-											AsksDataTable.Rows[j][0] = FullAsksTable.Rows[j][0];
-
-										break;
-									}
-								}
-							}
-
-							break;
-						}
-
-						case "buy":
-						{
-							//Check if we have a new bid at mid market price, or in other words, moving the mid market price
-							if (change.Price > Convert.ToDecimal(BidsDataTable.Rows[0][1]))
-							{
-								BidsDataTable.Rows[14].Delete();
-
-								row = FullBidsTable.NewRow();
-								row[0] = change.MarketSize;
-								row[1] = change.Price;
-								row[2] = 0;
-
-								FullBidsTable.Rows.InsertAt(row, 0);
-
-								row = BidsDataTable.NewRow();
-								row[0] = change.MarketSize;
-								row[1] = change.Price;
-								row[2] = 0;
-
-								BidsDataTable.Rows.InsertAt(row, 0);
-								}
-
-							else
-							{
-								for (int j = 0; j < 49; j++)
-								{
-									if (Convert.ToDecimal(FullBidsTable.Rows[j][1]) == change.Price)
-									{
-										FullBidsTable.Rows[j][0] = change.MarketSize;
-
-										if (j <= 14)
-											BidsDataTable.Rows[j][0] = FullBidsTable.Rows[j][0];
-
-										break;
-									}
-								}
-							}
-
-							break;
-						}
-
-						default:
-							break;
-					}
-				}
-
-				AsksDataTable.AcceptChanges();
-				BidsDataTable.AcceptChanges();
+				change.Price = decimal.Parse(change.Price.ToString("G29"));
+				PendChanges.Add(change);
 			}
 		}
 
@@ -255,6 +377,7 @@ namespace GDAX_Trade_Platform
 		/// </summary>
 		private void WebSocket_OnTickerReceived(object sender, WebfeedEventArgs<Ticker> e)
 		{
+			TickerReceived(this, e);
 		}
 
 		/// <summary>
@@ -384,27 +507,6 @@ namespace GDAX_Trade_Platform
 			Console.WriteLine("RefreshOrderBook Finished");
 		}
 
-		/// <summary>
-		/// Event method for when the Order Book has been received and entered into the DataTables
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		protected virtual void OnOrderBookReceived(object sender, EventArgs e)
-		{
-			var handler = OrderBookReceived; // We do not want racing conditions!
-			handler?.Invoke(sender, e);
-		}
-
-		/// <summary>
-		/// Event method for when the Level 2 updates have been received and entered into the DataTables
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		protected virtual void OnLevel2Received(object sender, Coords e)
-		{
-			var handler = Level2Received; // We do not want racing conditions!
-			handler?.Invoke(sender, e);
-		}
 	}
 
 	public struct Coords

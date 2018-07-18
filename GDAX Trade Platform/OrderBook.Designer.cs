@@ -89,6 +89,7 @@
 			this.Name = "OrderBook";
 			this.Text = "OrderBook";
 			this.TopMost = true;
+			this.Load += new System.EventHandler(this.OrderBook_Load);
 			((System.ComponentModel.ISupportInitialize)(this.AskSellTable)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.BidBuyTable)).EndInit();
 			this.ResumeLayout(false);

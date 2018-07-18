@@ -30,3 +30,4 @@ C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GD
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Serilog.dll
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Serilog.pdb
 C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\bin\Debug\Serilog.xml
+C:\Users\Jesse\source\repos\GDAX Trade Platform\GDAX Trade Platform\obj\Debug\GDAX_Trade_Platform.Trade_History.resources

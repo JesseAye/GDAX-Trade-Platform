@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GDAX_Trade_Platform
@@ -23,30 +25,27 @@ namespace GDAX_Trade_Platform
 			AskSellTable.Columns[0].Width = 86;
 			AskSellTable.Columns[1].Width = 86;
 			AskSellTable.Columns[2].Width = 67;
-
-			ClientData.OrderBookReceived += RefreshBothDGVs;
 		}
 
-		private void RefreshBothDGVs(object sender, EventArgs e)
+		private void OrderBook_Load(object sender, EventArgs e)
 		{
-			Invoke(new Action(delegate ()
+			Task t = new Task(RefreshBothDGVs);
+			t.Start();
+		}
+
+		private void RefreshBothDGVs()
+		{
+			while (true)
 			{
-				BidBuyTable.DataSource = null;
-
-				//System.InvalidOperationException: 'Rows cannot be programmatically added to the DataGridView's rows collection when the control is data-bound.'
-				BidBuyTable.DataSource = ClientData.CurrentBids;
-
-				BidBuyTable.Columns[0].Width = 86;
-				BidBuyTable.Columns[1].Width = 86;
-				BidBuyTable.Columns[2].Width = 67;
-
-				AskSellTable.DataSource = null;
-				AskSellTable.DataSource = ClientData.CurrentAsks;
-
-				AskSellTable.Columns[0].Width = 86;
-				AskSellTable.Columns[1].Width = 86;
-				AskSellTable.Columns[2].Width = 67;
-			}));
+				Invoke(new Action(delegate ()
+				{
+					BidBuyTable.Invalidate();
+					AskSellTable.Invalidate();
+					this.Text = "OrderBook - " + ClientData.PendChangesCount + " Changes pending";
+					this.Update();
+				}));
+				Thread.Sleep(100);
+			}
 		}
 	}
 }
