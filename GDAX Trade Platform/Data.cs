@@ -154,6 +154,7 @@ namespace GDAX_Trade_Platform
 								if (PendChanges[0].MarketSize > 0)
 								{
 									// If the price of the pending change is lower than the lowest existing in the full table
+									// This was placed outside of the for loop as it would be extra overhead
 									if (PendChanges[0].Price < Convert.ToDecimal(FullAsksTable.Rows[0][1]))
 									{
 										DataRow row = FullAsksTable.NewRow();
@@ -175,21 +176,44 @@ namespace GDAX_Trade_Platform
 										AsksDataTable.Rows.RemoveAt(AsksDataTable.Rows.Count - 1);
 									}
 
-									// If the price of the pending change is NOT lower than the lowest existing in the full table
+									// If the price of the pending change is equal to the lowest existing in the full table
+									else if (PendChanges[0].Price == Convert.ToDecimal(FullAsksTable.Rows[0][1]))
+									{
+										FullAsksTable.Rows[0][0] = PendChanges[0].MarketSize;
+									}
+
+									// If the price of the pending change is greater than the lowest existing in the full table
 									else
 									{
-										// Loop through each row in the full table and update the info as needed
-										for (int i = 0; i <= FullAsksTable.Rows.Count - 1; i++)
+										// Starting at 1 since we've just compared the PendChange to row at index 0
+										for (int i = 1; i <= FullAsksTable.Rows.Count - 1; i++)
 										{
-											if (Convert.ToDecimal(FullAsksTable.Rows[i][1]) == PendChanges[0].Price)
+											if (PendChanges[0].Price == Convert.ToDecimal(FullAsksTable.Rows[i][1]))
 											{
 												FullAsksTable.Rows[i][0] = PendChanges[0].MarketSize;
+												break;
+											}
+
+											else if (PendChanges[0].Price < Convert.ToDecimal(FullAsksTable.Rows[i][1]))
+											{
+												DataRow row = FullAsksTable.NewRow();
+												row[0] = PendChanges[0].MarketSize;
+												row[1] = PendChanges[0].Price;
+												row[2] = 0;
+												FullAsksTable.Rows.InsertAt(row, i);
+												row = null;
 
 												if (i <= AsksDataTable.Rows.Count - 1)
 												{
-													AsksDataTable.AcceptChanges();
-													AsksDataTable.Rows[i][0] = PendChanges[0].MarketSize;
+													row = AsksDataTable.NewRow();
+													row[0] = PendChanges[0].MarketSize;
+													row[1] = PendChanges[0].Price;
+													row[2] = 0;
+													AsksDataTable.Rows.InsertAt(row, i);
+													AsksDataTable.Rows.RemoveAt(15);
 												}
+
+												break;
 											}
 										}
 									}
@@ -246,7 +270,8 @@ namespace GDAX_Trade_Platform
 								// If we either need to update a row or add a row
 								if (PendChanges[0].MarketSize > 0)
 								{
-									// If the price of the pending change is higher than the highest existing in the full table
+									// If the price of the pending change is lower than the lowest existing in the full table
+									// This was placed outside of the for loop as it would be extra overhead
 									if (PendChanges[0].Price > Convert.ToDecimal(FullBidsTable.Rows[0][1]))
 									{
 										DataRow row = FullBidsTable.NewRow();
@@ -268,21 +293,44 @@ namespace GDAX_Trade_Platform
 										BidsDataTable.Rows.RemoveAt(BidsDataTable.Rows.Count - 1);
 									}
 
-									// If the price of the pending change is NOT higher than the highest existing in the full table
+									// If the price of the pending change is equal to the lowest existing in the full table
+									else if (PendChanges[0].Price == Convert.ToDecimal(FullBidsTable.Rows[0][1]))
+									{
+										FullBidsTable.Rows[0][0] = PendChanges[0].MarketSize;
+									}
+
+									// If the price of the pending change is greater than the lowest existing in the full table
 									else
 									{
-										// Loop through each row in the full table and update the info as needed
-										for (int i = 0; i <= FullBidsTable.Rows.Count - 1; i++)
+										// Starting at 1 since we've just compared the PendChange to row at index 0
+										for (int i = 1; i <= FullBidsTable.Rows.Count - 1; i++)
 										{
-											if (Convert.ToDecimal(FullBidsTable.Rows[i][1]) == PendChanges[0].Price)
+											if (PendChanges[0].Price == Convert.ToDecimal(FullBidsTable.Rows[i][1]))
 											{
 												FullBidsTable.Rows[i][0] = PendChanges[0].MarketSize;
+												break;
+											}
+
+											else if (PendChanges[0].Price > Convert.ToDecimal(FullBidsTable.Rows[i][1]))
+											{
+												DataRow row = FullBidsTable.NewRow();
+												row[0] = PendChanges[0].MarketSize;
+												row[1] = PendChanges[0].Price;
+												row[2] = 0;
+												FullBidsTable.Rows.InsertAt(row, i);
+												row = null;
 
 												if (i <= BidsDataTable.Rows.Count - 1)
 												{
-													BidsDataTable.AcceptChanges();
-													BidsDataTable.Rows[i][0] = PendChanges[0].MarketSize;
+													row = BidsDataTable.NewRow();
+													row[0] = PendChanges[0].MarketSize;
+													row[1] = PendChanges[0].Price;
+													row[2] = 0;
+													BidsDataTable.Rows.InsertAt(row, i);
+													BidsDataTable.Rows.RemoveAt(15);
 												}
+
+												break;
 											}
 										}
 									}
@@ -366,7 +414,7 @@ namespace GDAX_Trade_Platform
 					orderType = e.LastOrder.Changes.ElementAt(i).ElementAt(0)
 				};
 
-
+				// As janky as (I think) this is, this takes off the trailing zeros
 				change.Price = decimal.Parse(change.Price.ToString("G29"));
 				PendChanges.Add(change);
 			}
@@ -418,6 +466,11 @@ namespace GDAX_Trade_Platform
 				row[1] = Convert.ToDecimal(_orderBook.Asks.ElementAt(i).Price);
 				row[2] = Convert.ToDecimal(0);
 				FullAsksTable.Rows.Add(row);
+			}
+
+			for (int i = 0; i < _orderBook.Asks.Count(; i++)
+			{
+
 			}
 
 			//Begin loop so we can get the 15 prices closest to Mid Market Price in both directions
