@@ -11,6 +11,12 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 
+/*
+ * TODO:
+ * For some reason, whenever there is a major single order that clears out a few orders in the order book, PendChanges goes crazy and stacks thousands of objects
+ * before crashing.
+ */
+
 namespace GDAX_Trade_Platform
 {
 	public class Data
@@ -142,6 +148,10 @@ namespace GDAX_Trade_Platform
 				// Check to see if we have any pending changes
 				if(PendChanges.Count > 0)
 				{
+					if(PendChanges.Count > 150)
+					{
+						Console.WriteLine("Potential problem. PendChanges.Count has exceeded 150.");
+					}
 					// Make sure we start working on the correct data
 					switch (PendChanges[0].orderType)
 					{
@@ -180,6 +190,7 @@ namespace GDAX_Trade_Platform
 									else if (PendChanges[0].Price == Convert.ToDecimal(FullAsksTable.Rows[0][1]))
 									{
 										FullAsksTable.Rows[0][0] = PendChanges[0].MarketSize;
+										AsksDataTable.Rows[0][0] = PendChanges[0].MarketSize;
 									}
 
 									// If the price of the pending change is greater than the lowest existing in the full table
@@ -297,6 +308,7 @@ namespace GDAX_Trade_Platform
 									else if (PendChanges[0].Price == Convert.ToDecimal(FullBidsTable.Rows[0][1]))
 									{
 										FullBidsTable.Rows[0][0] = PendChanges[0].MarketSize;
+										BidsDataTable.Rows[0][0] = PendChanges[0].MarketSize;
 									}
 
 									// If the price of the pending change is greater than the lowest existing in the full table
@@ -466,11 +478,6 @@ namespace GDAX_Trade_Platform
 				row[1] = Convert.ToDecimal(_orderBook.Asks.ElementAt(i).Price);
 				row[2] = Convert.ToDecimal(0);
 				FullAsksTable.Rows.Add(row);
-			}
-
-			for (int i = 0; i < _orderBook.Asks.Count(; i++)
-			{
-
 			}
 
 			//Begin loop so we can get the 15 prices closest to Mid Market Price in both directions

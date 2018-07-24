@@ -42,9 +42,8 @@ namespace GDAX_Trade_Platform
 					BidBuyTable.Invalidate();
 					AskSellTable.Invalidate();
 					this.Text = "OrderBook - " + ClientData.PendChangesCount + " Changes pending";
-					this.Update();
 				}));
-				Thread.Sleep(100);
+				Thread.Sleep(50);
 			}
 		}
 	}
